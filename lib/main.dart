@@ -11,7 +11,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Auth Demo',
+      title: 'Rest Api Flutter',
       debugShowCheckedModeBanner: false,
       initialRoute: '/',
       routes: {
