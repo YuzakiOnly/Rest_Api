@@ -1,24 +1,47 @@
-import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class AuthService {
-  static Future<bool> register(String email, String password) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('email', email);
-    await prefs.setString('password', password);
-    return true;
+  final String baseUrl = 'https://reqres.in/api';
+
+  Future<String?> registerUser (String email, String password) async {
+    final url = Uri.parse('$baseUrl/register');
+
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': 'reqres-free-v1',
+      },
+      body: json.encode({'email': email, 'password': password}),
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      return data['token'];
+    } else {
+      final errorData = json.decode(response.body);
+      throw Exception(errorData['error']);
+    }
   }
 
-  static Future<bool> login(String email, String password) async {
-    final prefs = await SharedPreferences.getInstance();
-    final savedEmail = prefs.getString('email');
-    final savedPassword = prefs.getString('password');
+  Future<String?> loginUser (String email, String password) async {
+    final url = Uri.parse('$baseUrl/login');
 
-    return email == savedEmail && password == savedPassword;
-  }
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json',
+        'x-api-key': 'reqres-free-v1',
+      },
+      body: json.encode({'email': email, 'password': password}),
+    );
 
-  static Future<void> logout() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('email');
-    await prefs.remove('password');
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      return data['token'];
+    } else {
+      final errorData = json.decode(response.body);
+      throw Exception(errorData['error']);
+    }
   }
 }
